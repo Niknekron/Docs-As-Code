@@ -2,8 +2,7 @@ name: Publish technical documentation
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    branches: [main]
 
 jobs:
   build:
@@ -12,20 +11,18 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          # важно: отключаем сохранение токена checkout'а,
-          # иначе бывают git-ошибки при деплое
-          persist-credentials: false
 
-      - name: Install Asciidoctor and PlantUML
+      - name: Install Asciidoctor and PlantUML extension
         run: |
+          sudo apt-get update
+          sudo apt-get install -y ruby-full
           sudo gem install asciidoctor
           sudo gem install asciidoctor-plantuml
 
-      - name: Build AsciiDoc
+      - name: Build documentation
         run: |
           PLANTUML_URL="https://www.plantuml.com/plantuml" \
-          PLANTUML_ENCODING=deflate \
+          PLANTUML_ENCODING="deflate" \
           asciidoctor -r asciidoctor-plantuml \
             -D build/site \
             -R src/docs/asciidoc \
@@ -35,5 +32,6 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/site
+          publish_dir: build/site
           publish_branch: gh-pages
+          force_orphan: true
