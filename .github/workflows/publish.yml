@@ -1,4 +1,4 @@
-name: Publish technical documentation
+name: Publissh technical documentation
 
 on:
   push:
